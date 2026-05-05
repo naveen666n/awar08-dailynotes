@@ -54,7 +54,6 @@ simple Routing policy : No complex logics, very simple..
 
 AWS Route53 DNS has 2 types of resolvers, when we have hybrid-environments...
 
-
 Inbound DNS Resolver : On-Prem to AWS : 
 --> Allow on-premise systems to resolve private records inside the AWS VPC.
 
@@ -62,14 +61,13 @@ Flow: On-prem server trying to access AWS DB with DNS name..
 
 On-Prem DNS server receives the query --> Forwards to Route53 "Inbound Endpoint" --> Route53 Hosted Zone --> verify the record --> Reach the Db server --> gets the response by On-prem server..
 
-
 ---
 
 Onbound DNS Resolver : AWS --> On-Prem : 
 
 Flow: AWS Server trying to access on-prem hosted DB with DNS name..
 
-AWS Ec2 instance trying to access --> DNS HostedZone Resolver rule --> Forwards the traffic to "outbound endpoint" --> Req sends to on-rem DNS server --> reach the DB server...
+AWS Ec2 instance trying to access --> DNS HostedZone Resolver rule --> Forwards the traffic to "outbound endpoint" --> Req sends to on-rem DNS server --> reach the on-prem DB server...
 
 ----
 

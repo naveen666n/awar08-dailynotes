@@ -1,0 +1,169 @@
+
+
+VPC : Virtual Private Cloud : 
+
+
+IPv4 : 32 Bit address space : 2^32 : 4.3 billion unique IPs
+IPv6 : 128 Bit address space : 2^128 : 340 unidecilions unique IPs
+
+
+Public IP : works over internet.. Its unique across the globe.. ISP : Internet Service provider.. 
+Private IP : Its used within our network for internal usage, without paying anything to ISP.
+
+windows : ipconfig /all
+linux : ifconfig (or) ip addr (or) ip
+
+IPv4 has 5 classes : 
+
+Class A : 0 - 126 	: 0.0.0.0 - 126.255.255.255
+Class B : 128 - 191 : 128.0.0.0 - 191.255.255.255
+Class C : 192 - 223 : 191.0.0.0 - 223.255.255.255
+
+Class D : 224 - 239 : 224.0.0.0 - 239.255.255.255
+Class E : 240 - 255 : 240.0.0.0 - 255.255.255.255
+
+127.0.0.0 --> loopback IP / Localhost / 127.0.0.1
+
+
+IPv4 is 32 bit : 8-bit . 8-bit . 8-bit . 8-bit
+
+---
+
+Every class (A-C) has private IP addresses.. 
+
+Class A : 10.0.0.0 - 10.255.255.255 
+Class B : 172.16.0.0 - 172.31.255.255
+Class C : 192.168.0.0 - 192.168.255.255
+
+=========
+
+Network : group of interconnected devices (ex: our home wifi network)
+
+Host : A device inside a network called host. (laptop, phone, printer, alexa, tv...)
+
+
+Class A : N.H.H.H
+Class B : N.N.H.H
+Class C : N.N.N.H
+
+
+Class C : N.N.N.H : 192.168.0.0 : 192.168.0 --> Network... 256 --> hosts..
+Class C will have 2 million Networks.. 
+
+192.168.0.0
+192.168.0.1
+192.168.0.2
+192.168.0.3
+192.168.0.4
+..
+..
+192.168.0.255
+
+---
+
+Class B : N.N.H.H : 172.16.0.0 : 172.16 --> Network... 65k --> hosts..
+Class B will have 16000 Network.. 
+
+172.16.0.0
+172.16.0.1
+172.16.0.2
+172.16.0.3
+..
+..
+172.16.0.255
+172.16.1.0
+172.16.1.1
+172.16.1.2
+172.16.1.3
+..
+..
+172.16.1.255
+...
+..
+172.16.255.255
+
+---
+
+Class A : N.H.H.H : 10.0.0.0 : 10 --> Network.. 16 million hosts per network..
+Class A will have 127 Network.. 
+
+1.0.0.0
+1.0.0.1
+1.0.0.2
+..
+..
+..
+1.(0-255).(0-255).(0-255)
+1.255.255.255
+
+=======
+
+DHCP : Dynamic Host Configuration protocol : It allocated IP address to the devices added to network automatically.
+
+=====
+
+
+IPv4 : 32 blocks : 
+
+
+/32 --> 32 - 32 = 0 = 2^0 = 1
+/31 --> 32 - 31 = 1 = 2^1 = 2
+/30 --> 32 - 30 = 2 = 2^2 = 4
+/29 --> 32 - 29 = 3 = 2^3 = 8
+
+/28 --> 32 - 28 = 4 = 2^4 = 16			--> Min VPC required /28 subnet
+/24 --> 32 - 24 = 8 = 2^8 = 256
+/16 --> 32 - 16 = 16 = 2^16 = 65536		--> Max VPC supports /16 subnet only
+
+
+We cannot use all the IPs..
+In general networks, 2 IPs reserved (first --> Network ID.. Last --> Broadcast ID)
+Along with 2 general network reservations, AWS Reserves, 3 more IPs..
+--> VPC Router
+--> AWS DNS 
+--> Future Usage
+
+--> Total 5 IPs will be reserved by AWS, when we create a VPC.. 
+
+
+USABLE IPs COUNT: 
+
+/28 --> 32 - 28 = 4 = 2^4 = 16 - 5 = 11 Usable IPs
+/24 --> 32 - 24 = 8 = 2^8 = 256 - 5 = 251 Usable IPs
+/16 --> 32 - 16 = 16 = 2^16 = 65536 - 5 = 65531 Usable IPs
+
+----
+
+
+VPC : Region Specific : 
+
+In Default VPC, all subnets are public.. Internet facing subnets.. Gets the insternet access inside the instance, also, instanbces are accesable over the internet..
+
+To secure our sensitive workload i.e; app servers / db servers, we need to run this workload in isolated private subnets..
+
+
+1. How big VPC we need.? Ans : 
+	Which class.? 
+	Subnet for VPC.?
+
+2. How many subnets we need to create.? 
+	2.1 Public Subnets
+		web (ap-south-1a & ap-south-1b)
+	2.2 Private Subents
+		2.2.1 With internet
+		app (ap-south-1a & ap-south-1b)
+		2.2.2 without internet
+		db (ap-south-1a & ap-south-1b)
+		lambda (ap-south-1a & ap-south-1b)
+		
+3. Any future plans to add new subnets later.? 
+
+
+
+
+
+
+
+
+
+
