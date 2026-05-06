@@ -129,6 +129,7 @@ Along with 2 general network reservations, AWS Reserves, 3 more IPs..
 USABLE IPs COUNT: 
 
 /28 --> 32 - 28 = 4 = 2^4 = 16 - 5 = 11 Usable IPs
+/27 --> 32 - 27 = 5 = 2^5 = 32 - 5 = 27 Usable IPs
 /24 --> 32 - 24 = 8 = 2^8 = 256 - 5 = 251 Usable IPs
 /16 --> 32 - 16 = 16 = 2^16 = 65536 - 5 = 65531 Usable IPs
 
@@ -158,6 +159,71 @@ To secure our sensitive workload i.e; app servers / db servers, we need to run t
 		
 3. Any future plans to add new subnets later.? 
 
+
+=========
+
+
+Step 1 : Choose CIDR range and Create VPC with finalised CIDR range.
+Ans: 192.168.0.0/24 (251 Usable IPs)
+
+--> Default SG
+--> Main RouteTable
+--> Default NCAL
+
+Step 2 : SPlit the VPC CIDR range into multiple Subnets based on our requirement. 
+
+PUBLIC with Internet via IGW
+192.168.0.0/27 - PUB-Subnet-1a
+192.168.0.32/27 - PUB-Subnet-1b
+
+PRIVATE with Internet via NAT gateway
+192.168.0.64/27 - PRI-Subnet-1a
+192.168.0.96/27 - PRI-Subnet-1b
+
+DATABASE (private Without Internet)
+192.168.0.128/27 - DB-Subnet-1a
+192.168.0.160/27 - DB-Subnet-1b
+
+
+Step 3 : Create Internet Gateway and atatch to VPC. 
+
+* 1 VPC can have only 1 IGW. 
+
+
+Step 4 : Create Required Route Tables. 
+
+local route : This route helps all subnets to communicate each other within VPC. This comes defaultly and we cannot delete this.
+
+	4.1 Create Public-RT : Associate Public Subnets here : Add Entry to Internet gateway via 0.0.0.0/0 .
+	4.2 Create Private-RT : Associate Private Subnets here : Later, we can add entry via NAT Gateway.
+	4.3 Create DB-RT 	: Associate DB Subnets here : Dont add any entry
+
+Step 5 (Optional but recommended) : 
+
+	5.1 Enable "auto assign public IP" setting for Public Subnets
+	5.2 Enable DNS hostnames on VPC.
+
+
+====
+
+Testing Scenario : 
+
+1. Launch an ec2 instance in Public SUbnet, And get connect from your laptop, test internet connection "wget google.com", It works.. 
+2. Launch another ec2 instane in private subnet, try to connect from your laptop, wont work.
+3. Copy the private subnet ec2 instance keypair to public subnet instance
+4. FROM PUBLIC SUBNET INSTANCE, using the keypair, connect to the private subnet instance. And verify internet access using "wget google.com", wont work.. 
+
+To Test connection between Public Subnet instance and private subnet insatnce, we can use "PING" to test the connection..
+Make sure your private subnet instance SG is opened with "ICMP - Echo Request and Echo reply"..
+
+
+====
+
+NAT GATEWAY : This component helps to provide internet to Private subnet instances.  (NAT Should run in PUBLIC Subnet - to communicate with Internet Gateway)
+
+NAT Has 2 modes. 
+1. Public : Helps to provide internet to private subnet instances
+2. Private : Helps to communicate instances internally. Wont provide interent. 
 
 
 
