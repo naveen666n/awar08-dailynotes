@@ -105,8 +105,6 @@ Reduced write latency
 
 
 
-
-
 mywtcdb.c1ekg4m6e0fi.ap-south-1.rds.amazonaws.com
 
 192.168.0.143
@@ -125,6 +123,56 @@ RDS Backtrack is a specialized feature for Amazon Aurora MySQL-Compatible Editio
 
 PITR : Point In Time Restore
 Restore to Point In Time : 
+
+
+============
+
+D: 12/05/2026
+
+
+Amazon Aurora : Has a serverless version.. 
+
+--> Amazon aurora has 2 compatable editions.
+	1. Mysql compatable 
+	2. PostGRE Sql compatable
+
+ACU : Aurora Capacity Units : 
+1 ACU provides 2 GB Memory.. 
+
+2. Most of other DBs supports max storage as 64 TB, But amazon aurora supports upto 128 TB.
+
+3. Six-way replication across three Availability Zones
+4. Up to 15 read replicas with replica lag under 10-ms
+5. Automatic monitoring with failover
+
+
+===========
+
+DynamoDB : Nosql Database servcie.. Serverless db servcie.. "Single Digit Milli seconds Latency at any scale of data".. 
+
+DynamoDB is cheaper for read operations, Costly for write operations.
+
+DynamoDB stores all the data in JSON foramt. 
+
+
+=========
+
+Full load --> replicate all existing data once
+
+CDC - Change Data Capture --> Ongoing replication
+
+full load + cdc --> Once all changes then continue with ongoing changes.
+
+Homogeneous Migration : Same class source to target migration (mysql --> mysql)
+Heterogeneous Migration : Diff class source and target migration (mongodb --> postgre)
+
+
+
+
+
+
+
+
 
 
 
