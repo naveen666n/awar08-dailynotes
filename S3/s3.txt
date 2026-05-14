@@ -57,6 +57,112 @@ How many API calls happening on our data. (PUT / GET / UPDATE)
 How much data transferring
 How much data you are storing (gb/tb days)
 What storage class you are using (Standard / IA / Glacier / IT)
+Are you performing any data retrivals from storage classes.
+
+============
+
+D: 14/05/2026
+
+S3 Storage Classes : 
+
+--> How frequently you are accessing data.?
+--> Do you need data without delay.? or okay to wait for sometime to get the data.?
+
+S3 Standard : Frequently accessed data (more than once a month) with milliseconds access : 
+--> We can access data without any delays. 
+--> Data spans across mutliple AZs (>= 3 AZs)
+--> 99.99% Availability.. 99.999999999% Durability.. 
+
+Standard-IA : 
+--> We can access data without any delays. 
+--> Infrequently accessed data (once a month) with milliseconds access
+--> Data spans across mutliple AZs (>= 3 AZs)
+--> 99.99% Availability.. 99.999999999% Durability.. 
+
+One Zone-IA : 
+--> We can access data without any delays. 
+--> As data stores only in 1 AZ, Recommended to store easily recreatable/reprodusable data. 
+--> Infrequently accessed data (once a month) with milliseconds access
+--> Data stores only in 1 AZ 
+--> 99.95% Availability.. 99.999999999% Durability.. 
+
+Glacier Instant Retrieval : 
+--> Long-lived archive data accessed once a quarter with instant retrieval in milliseconds
+
+Glacier Flexible Retrieval (formerly Glacier) : 
+--> Long-lived archive data accessed once a year with retrieval of minutes to hours (2-5 hrs)
+--> We cannot access data immediately. 
+
+Glacier Deep Archive : 
+--> Long-lived archive data accessed less than once a year with retrieval of hours. (12-24 hrs)
+--> We cannot access data immediately. 
+
+Intelligent-Tiering: 
+--> Data with changing or unknown access patterns
+--> Bit constier compare to other databases.
+
+Glacier retrival options : 
+Bulk retrieval: Typically within 5-12 hours.
+Standard retrieval: Typically within 3-5 hours.
+Expedited retrieval: Typically within 1-5 minutes when retrieving less than 250 MB.
+
+--------
+
+Versioning : Helps to maintain multiple copies of our objects within same bucket.
+
+By default, versioning will be in suspended state, existing objects wont have version id. 
+After enableing versioning, All uplaods will get a version id. (we cannot manege the id)
+
+
+--> We can get object to current state, if any wrong edits happens.
+--> If any object deleted accidentally, we get a delete marker, delete the delete marker to get the object back.
+
+If you enable "show version" and deleted an object, it deletes perminently. 
+
+
+permanently delete : object gone.
+delete : We can recover the object.
+
+-------
+
+Life cycle management rule : 
+
+helps to transit object from one storage class to another storage class, then we cna configure to delete the object at certain point of time.
+
+We can apply a configuration for current versioned object and another configuration for previous/non-current versioned objects.
+
+
+----
+
+Replication : 
+
+SRR : Same region replciation : Source bucket and destination/target bucket are in same region..
+CRR : Cross region replciation : Source bucket and destination/target bucket are in different regions..
+
+--> versioning must be enabled on source and destination bucket.
+
+Source bucket already has some data, you decided to enable replication to another region bucket. How you can repclicate existing data.?
+Ans: We can create a one time batch job and replicate existing data.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
