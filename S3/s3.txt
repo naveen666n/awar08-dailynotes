@@ -304,13 +304,43 @@ Table buckets : This can store tabular data, that optimised for analytical engin
 
 S3 vector Buckets : used for storing and searchng vector embeddings for AI application. 
 
-----
+=================
+
+D: 18/05/2026
+
+CORS : https://www.youtube.com/watch?v=YrfDLrSVxQ8
+
+---
+
+S3 Multiplart upload : 
+
+We can upload a large object to s3 as smaller parts. 
+
+large file (more than 100 mb)
+faster uploades using parallelism
+resume failed uploads
+
+aws s3api create-multipart-upload --bucket avinash --key large-file.zip
+
+aws s3api upload-part --bucket acinash --key large-file.zip --part-number 1 --body part1.zip 
+
+=====
+
+
+aws configure set default.s3.multipart_chunksize 128MB
+
+https://s3browser.com/
+https://www.msp360.com/explorer/windows/
+
+======
+
+cloudfront : CDN (Content Delivery Network) : PoP (Point of Presence Location) : 
+
+RTT : Round trip time
 
 
 
-
-
-
+d2s7lrrzn9e2hw.cloudfront.net/s3.txt
 
 
 
