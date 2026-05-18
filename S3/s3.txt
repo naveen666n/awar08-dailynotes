@@ -340,7 +340,7 @@ RTT : Round trip time
 
 
 
-d2s7lrrzn9e2hw.cloudfront.net/s3.txt
+https://d2s7lrrzn9e2hw.cloudfront.net/s3.txt
 
 
 
