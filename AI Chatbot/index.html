@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - Amazon Bedrock Workshop | AVIZ Academy</title>
+    <style>
+        :root {
+            --primary: #0b5ed7;
+            --secondary: #0d6efd;
+            --accent: #ff9900;
+            --dark: #1f2937;
+            --light-bg: #f4f7fb;
+            --success: #198754;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--light-bg);
+            line-height: 1.65;
+            color: #111827;
+        }
+
+        .page {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 25px;
+            background: linear-gradient(90deg, #0b5ed7, #084298);
+            border-radius: 14px;
+            color: white;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(11, 94, 215, 0.2);
+        }
+
+        .header img {
+            height: 52px;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 10px;
+        }
+
+        .header-content h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .header-content p {
+            margin: 4px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Main Container */
+        .container {
+            background: white;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+        }
+
+        /* Info Banner */
+        .info-banner {
+            background: #e8f1ff;
+            border-left: 5px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px 18px;
+            margin-bottom: 25px;
+        }
+
+        .info-banner strong {
+            color: var(--primary);
+        }
+
+        /* Chat Container */
+        .chat-container {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f9fafb;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Messages */
+        .message {
+            margin: 12px 0;
+            padding: 14px 18px;
+            border-radius: 12px;
+            max-width: 85%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message .sender-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user {
+            background: linear-gradient(135deg, #0b5ed7, #0d6efd);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+            box-shadow: 0 2px 8px rgba(11, 94, 215, 0.3);
+        }
+
+        .user .sender-label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .ai {
+            background: white;
+            border: 2px solid #e5e7eb;
+            color: #1f2937;
+            margin-right: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .ai .sender-label {
+            color: var(--primary);
+        }
+
+        /* Message content formatting */
+        .message ul {
+            list-style-type: disc;
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .message li {
+            margin: 4px 0;
+            line-height: 1.6;
+        }
+
+        .message h2, .message h3, .message h4 {
+            margin-top: 12px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .message p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .loading {
+            background: #fff4e5;
+            border: 2px solid var(--accent);
+            color: #666;
+            font-style: italic;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Suggested Questions */
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .suggestion-label {
+            width: 100%;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .chip {
+            padding: 8px 16px;
+            background: #f0f4ff;
+            border: 1.5px solid #c7d7f9;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .chip:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Input Container */
+        .input-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.1);
+        }
+
+        button {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(11, 94, 215, 0.3);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(11, 94, 215, 0.4);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #eaf7ed;
+            border: 1px solid var(--success);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--success);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .footer strong {
+            color: #111827;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .message {
+                max-width: 95%;
+            }
+
+            .input-container {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Header -->
+        <div class="header">
+            <img src="https://avizacademy.com/assets/images/logo_hero.png" alt="AVIZ Academy Logo">
+            <div class="header-content">
+                <h1>AI Assistant - Amazon Bedrock  · Workshop by <span style="color: #ff9900;">Avinash Reddy Thipparthi</span></h1>
+                <p>Powered by Amazon Nova 2 Lite · Built with AWS Lambda & API Gateway</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                AI Assistant Online
+            </div>
+
+            <div class="info-banner">
+                <strong>💡 Welcome!</strong> This AI assistant is powered by Amazon Bedrock's Nova 2 Lite model. Ask me anything about AWS, technology, or general questions!
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+                <div class="message ai">
+                    <span class="sender-label">AI Assistant</span>
+                    Hello! I'm powered by Amazon Nova 2 Lite on AWS. Try the suggested questions below or ask me anything!
+                </div>
+            </div>
+
+            <!-- Suggested Question Chips -->
+            <div class="suggestions">
+                <span class="suggestion-label">💡 Try asking:</span>
+                <span class="chip" onclick="askSuggestion('What is AWS Lambda?')">What is AWS Lambda?</span>
+                <span class="chip" onclick="askSuggestion('How does API Gateway work?')">How does API Gateway work?</span>
+                <span class="chip" onclick="askSuggestion('What is Amazon Bedrock?')">What is Amazon Bedrock?</span>
+            </div>
+
+            <div class="input-container">
+                <!-- FIX: maxlength="500" added to prevent overly long messages -->
+                <input type="text" id="messageInput" 
+                       placeholder="Type your message here..." 
+                       maxlength="500"
+                       onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()" id="sendButton">Send</button>
+            </div>
+
+            <div class="footer">
+                <strong>Amazon Bedrock Workshop</strong> | Built with ❤️ by <strong style="color: #ff9900;">Avinash Reddy Thipparthi</strong><br>
+                Subscribe to my YouTube channel: <a href="https://www.youtube.com/@avizway/" target="_blank">@avizway</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_ENDPOINT = 'https://i6bn8r2f4c.execute-api.ap-south-1.amazonaws.com/dev/chat';
+        function formatText(text) {
+            // Escape HTML to prevent injection
+            let formatted = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            // Convert markdown-style formatting to HTML
+            formatted = formatted
+                .replace(/^### (.*?)$/gm, '<h4 style="margin: 12px 0 8px 0; color: #0b5ed7; font-size: 16px;">$1</h4>')
+                .replace(/^## (.*?)$/gm, '<h3 style="margin: 14px 0 10px 0; color: #0b5ed7; font-size: 18px;">$1</h3>')
+                .replace(/^# (.*?)$/gm, '<h2 style="margin: 16px 0 12px 0; color: #0b5ed7; font-size: 20px;">$1</h2>')
+                .replace(/\*\*(.*?)\*\*/g, '<b style="color: #1f2937; font-weight: 600;">$1</b>')
+                .replace(/^\* (.*?)$/gm, '<li style="margin: 4px 0;">$1</li>')
+                .replace(/^- (.*?)$/gm, '<li style="margin: 4px 0;">$1</li>')
+                .replace(/\n\n+/g, '</p><p style="margin: 10px 0;">')
+                .replace(/\n/g, ' ');
+
+            // Wrap consecutive list items in ul tags
+            formatted = formatted.replace(/(<li.*?<\/li>\s*)+/g, (match) => {
+                return '<ul style="margin: 10px 0; padding-left: 20px; list-style-type: disc;">' + match + '</ul>';
+            });
+
+            // Wrap in paragraph tags and clean up empty ones
+            formatted = '<p style="margin: 10px 0;">' + formatted + '</p>';
+            formatted = formatted.replace(/<p[^>]*>\s*<\/p>/g, '');
+
+            return formatted;
+        }
+
+        function addMessage(content, isUser) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+
+            const formattedContent = isUser ? content : formatText(content);
+            messageDiv.innerHTML = `<span class="sender-label">${isUser ? 'You' : 'AI Assistant'}</span><div style="margin-top: 8px;">${formattedContent}</div>`;
+
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function showLoading() {
+            const chatContainer = document.getElementById('chatContainer');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message ai loading';
+            loadingDiv.id = 'loading';
+            loadingDiv.innerHTML = '<span class="sender-label">AI Assistant</span>🤔 Thinking...';
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function removeLoading() {
+            const loading = document.getElementById('loading');
+            if (loading) loading.remove();
+        }
+
+        // Suggestion chip handler
+        function askSuggestion(question) {
+            document.getElementById('messageInput').value = question;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            addMessage(message, true);
+            input.value = '';
+            sendButton.disabled = true;
+            showLoading();
+
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                removeLoading();
+
+                if (response.ok) {
+                    addMessage(data.response, false);
+                } else {
+                    addMessage(`❌ Error: ${data.error || 'Something went wrong'}`, false);
+                }
+            } catch (error) {
+                removeLoading();
+                addMessage(`❌ Error: ${error.message}`, false);
+            }
+
+            sendButton.disabled = false;
+            input.focus();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Focus input on page load
+        window.addEventListener('load', () => {
+            document.getElementById('messageInput').focus();
+        });
+    </script>
+</body>
+</html>

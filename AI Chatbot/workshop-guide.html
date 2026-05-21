@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Bedrock Workshop - Deployment Guide | AVIZ Academy</title>
+
+    <style>
+        :root {
+            --primary: #0b5ed7;
+            --secondary: #0d6efd;
+            --accent: #ff9900;
+            --dark: #1f2937;
+            --light-bg: #f4f7fb;
+            --code-bg: #0f172a;
+            --code-text: #e5e7eb;
+        }
+
+        body {
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            padding: 0;
+            line-height: 1.65;
+            color: #111827;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 25px;
+            background: linear-gradient(90deg, #0b5ed7, #084298);
+            border-radius: 14px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header img {
+            height: 52px;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 10px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 4px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Card container */
+        .container {
+            background: white;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            margin-top: 40px;
+            padding: 14px 18px;
+            background: #eef4ff;
+            border-left: 6px solid var(--primary);
+            border-radius: 6px;
+            color: var(--dark);
+        }
+
+        h3 {
+            color: var(--primary);
+            margin-top: 30px;
+        }
+
+        /* Navigation */
+        .nav {
+            background: var(--dark);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin: 25px 0 35px;
+        }
+
+        .nav strong {
+            margin-right: 12px;
+        }
+
+        .nav a {
+            color: var(--accent);
+            margin-right: 18px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Steps */
+        .step {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            margin-right: 10px;
+        }
+
+        /* Info boxes */
+        .info, .warning, .success {
+            border-radius: 10px;
+            padding: 15px 18px;
+            margin: 16px 0;
+        }
+
+        .info {
+            background: #e8f1ff;
+            border-left: 5px solid var(--primary);
+        }
+
+        .warning {
+            background: #fff4e5;
+            border-left: 5px solid var(--accent);
+        }
+
+        .success {
+            background: #eaf7ed;
+            border-left: 5px solid #198754;
+        }
+
+        /* Code */
+        code {
+            background: #f1f5f9;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+            font-size: 0.95em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 18px;
+            border-radius: 12px;
+            overflow-x: auto;
+            max-height: 520px;
+            font-size: 13.5px;
+            line-height: 1.55;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        ul {
+            padding-left: 22px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        hr {
+            margin: 50px 0 30px;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        footer strong {
+            color: #111827;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <!-- Header -->
+    <div class="header">
+        <img src="https://avizacademy.com/assets/images/logo_hero.png" alt="AVIZ Academy Logo">
+        <div>
+            <h1>Amazon Bedrock Workshop by <span style="color: #ff9900;">Avinash Reddy Thipparthi</span></h1>
+            <p>Deployment Guide · Build Your AI Assistant</p>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Navigation -->
+        <div class="nav">
+            <strong>Quick Navigation:</strong>
+            <a href="#prerequisites">Prerequisites</a>
+            <a href="#lambda">Lambda</a>
+            <a href="#api-gateway">API Gateway</a>
+            <a href="#web-interface">Web Interface</a>
+            <a href="#testing">Testing</a>
+            <a href="#s3-hosting">S3 & Route53</a>
+        </div>
+
+        <div class="info">
+            <strong>Workshop Objective:</strong> Build and deploy a serverless AI assistant using Amazon Bedrock (Nova 2 Lite), Lambda, API Gateway and s3 Hosted Via Route53.
+        </div>
+
+        <h2 id="prerequisites">📋 Prerequisites & Setup</h2>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>AWS Account Access & Region Selection</strong>
+            <ul>
+                <li>Ensure you have AWS Console access</li>
+                <li><strong>Region:</strong> 🇮🇳 <strong>Asia Pacific Mumbai (ap-south-1)</strong></li>
+                <li>Check you have permissions for Lambda, API Gateway, and Bedrock</li>
+            </ul>
+            <div class="info">
+                <strong>Model Access:</strong> We'll use Amazon Nova 2 Lite via Global Inference Profile - automatically routes to the best available region for optimal performance. If you are using other region, you need to verify the model ID fro AWS bedrock servcie.
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Create Workshop Directory</strong>
+            <p>Create a folder on your computer called <code>bedrock-workshop</code> to store your files.</p>
+        </div>
+
+        <h2 id="lambda">⚡ Step 1: Create Lambda Function</h2>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Navigate to Lambda Service</strong>
+            <ul>
+                <li>Open AWS Console</li>
+                <li>Search for "Lambda" in the services</li>
+                <li>Click on "Lambda" to open the service</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Create New Function</strong>
+            <ul>
+                <li>Click <strong>"Create function"</strong></li>
+                <li>Select <strong>"Author from scratch"</strong></li>
+                <li>Function name: <code>bedrock-ai-assistant</code></li>
+                <li>Runtime: <strong>Python 3.14</strong></li>
+                <li>Architecture: <strong>x86_64</strong></li>
+                <li>Click <strong>"Create function"</strong></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <strong>Add Lambda Function Code</strong>
+            <p>In the Code source section, replace the default code with:</p>
+            
+            <pre><code>import json
+import boto3
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+bedrock = boto3.client('bedrock-runtime', region_name='ap-south-1')
+
+def lambda_handler(event, context):
+    try:
+        # Handle CORS preflight request (browser sends this before the real request)
+        if event.get('httpMethod') == 'OPTIONS':
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                },
+                'body': ''
+            }
+
+        # Parse the request body
+        body = json.loads(event['body']) if event.get('body') else {}
+        user_message = body.get('message', '')
+        
+        if not user_message:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                },
+                'body': json.dumps({'error': 'Message is required'})
+            }
+        
+        # Prepare request for Nova 2 Lite
+        request_body = {
+            "system": [
+                {
+                    "text": "You are a helpful AI assistant built on AWS by Aviz Academy students. Answer clearly and simply."
+                }
+            ],
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [{"text": user_message}]
+                }
+            ],
+            "inferenceConfig": {
+                "maxTokens": 1000,
+                "temperature": 0.7
+            }
+        }
+        
+        # Call Bedrock with Nova 2 Lite profile
+        response = bedrock.invoke_model(
+            modelId='global.amazon.nova-2-lite-v1:0',
+            body=json.dumps(request_body)
+        )
+        
+        # Parse response
+        response_body = json.loads(response['body'].read())
+        ai_response = response_body['output']['message']['content'][0]['text']
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            },
+            'body': json.dumps({'response': ai_response})
+        }
+        
+    except Exception as e:
+        logger.error(f"Error: {str(e)}")
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            },
+            'body': json.dumps({'error': 'Internal server error'})
+        }</code></pre>
+
+            <div class="info">
+                <strong>Model Used:</strong> Amazon Nova 2 Lite via Global Inference Profile - Routes automatically to the best available region.
+            </div>
+            
+            <p>Click <strong>"Deploy"</strong> to save the code.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">6</span>
+            <strong>Configure IAM Permissions</strong>
+            <ul>
+                <li>Go to the <strong>"Configuration"</strong> tab</li>
+                <li>Click <strong>"Permissions"</strong> in the left sidebar</li>
+                <li>Click on the execution role name (it will be a link)</li>
+                <li>This opens IAM in a new tab</li>
+                <li>Click <strong>"Add permissions"</strong> → <strong>"Attach policies"</strong></li>
+                <li>Search for and select: <code>AmazonBedrockFullAccess</code></li>
+                <li>Click <strong>"Add permissions"</strong></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">7</span>
+            <strong>Update Function Configuration</strong>
+            <ul>
+                <li>Go back to Lambda function</li>
+                <li>In <strong>"Configuration"</strong> → <strong>"General configuration"</strong></li>
+                <li>Click <strong>"Edit"</strong></li>
+                <li>Set Timeout to: <strong>30 seconds</strong></li>
+                <li>Click <strong>"Save"</strong></li>
+            </ul>
+        </div>
+
+        <h2 id="api-gateway">🌐 Step 2: Create API Gateway</h2>
+
+        <div class="step">
+            <span class="step-number">8</span>
+            <strong>Navigate to API Gateway</strong>
+            <ul>
+                <li>Search for "API Gateway" in AWS Console</li>
+                <li>Click on "API Gateway" service</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">9</span>
+            <strong>Create REST API</strong>
+            <ul>
+                <li>Click <strong>"Create API"</strong></li>
+                <li>Under "REST API", click <strong>"Build"</strong></li>
+                <li>Select <strong>"New API"</strong></li>
+                <li>API name: <code>bedrock-chat-api</code></li>
+                <li>Description: <code>API for Bedrock AI Assistant</code></li>
+                <li>Endpoint Type: <strong>Regional</strong></li>
+                <li>Security Policy: <strong>SecurityPolicy_TLS13_1_2_2021_06</strong></li>
+                <li>Endpoint access mode: <strong>Basic</strong></li>
+                <li>Click <strong>"Create API"</strong></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">10</span>
+            <strong>Create Resource</strong>
+            <ul>
+                <li>Click <strong>"/" and </strong> → <strong>"Create Resource"</strong></li>
+                <li>Resource Path: <code>/</code></li>
+                <li>Resource Name: <code>chat</code></li>
+                <li>Enable CORS: ✅ <strong>Check this box</strong></li>
+                <li>Click <strong>"Create Resource"</strong></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">11</span>
+            <strong>Create POST Method</strong>
+            <ul>
+                <li>Select the <code>/chat</code> resource</li>
+                <li>Under <strong>"Methods" section</strong> → <strong>"Create Method"</strong></li>
+                <li>Select <strong>"POST"</strong> from dropdown</li>
+                <li>Click the checkmark ✓</li>
+                <li>Integration type: <strong>Lambda Function</strong></li>
+                <li>Use Lambda Proxy integration: ✅ <strong>Check this box</strong></li>
+                <li>Lambda Region: <strong>ap-south-1</strong></li>
+                <li>Lambda Function: <code>bedrock-ai-assistant</code></li>
+                <li>Click <strong>"Save"</strong></li>
+                <li>Click <strong>"OK"</strong> to give API Gateway permission to invoke Lambda</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">12</span>
+            <strong>Enable CORS</strong>
+            <ul>
+                <li>Select the <code>/chat</code> resource</li>
+                <li>Click <strong>"Actions"</strong> → <strong>"Enable CORS"</strong></li>
+                <li>Access-Control-Allow-Methods: Select <strong>POST</strong> and <strong>OPTIONS</strong></li>
+                <li>Access-Control-Allow-Headers: <code>Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token</code></li>
+                <li>Access-Control-Allow-Origin: <code>*</code></li>
+                <li>Click <strong>"save"</strong></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">13</span>
+            <strong>Deploy API</strong>
+            <ul>
+                <li>Click <strong>"Actions"</strong> → <strong>"Deploy API"</strong></li>
+                <li>Deployment stage: <strong>[New Stage]</strong></li>
+                <li>Stage name: <code>dev</code></li>
+                <li>Stage description: <code>Development stage</code></li>
+                <li>Click <strong>"Deploy"</strong></li>
+                <li><strong>📝 Copy the Invoke URL</strong> - you'll need this for the web interface!</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>Important:</strong> Your API endpoint will look like: <code>https://xxxxxxxxxx.execute-api.ap-south-1.amazonaws.com/dev/chat</code><br>
+            Make sure to copy this URL - you'll need it in the next step!
+        </div>
+
+        <h2 id="web-interface">💻 Step 3: Create Web Interface</h2>
+
+        <div class="step">
+            <span class="step-number">14</span>
+            <strong>Create HTML File</strong>
+            <p>Create a new file called <code>index.html</code> in your workshop folder with this content:</p>
+            <div class="warning">
+                <strong>Tip:</strong> You need to update the API endpoint URL in the JavaScript. The correct format is: <code>https://your-api-id.execute-api.ap-south-1.amazonaws.com/dev/chat</code>. Save this file to your local laptop, update the API endpoint, and test.
+            </div>
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;AI Assistant - Amazon Bedrock Workshop | AVIZ Academy&lt;/title&gt;
+    &lt;style&gt;
+        :root {
+            --primary: #0b5ed7;
+            --secondary: #0d6efd;
+            --accent: #ff9900;
+            --dark: #1f2937;
+            --light-bg: #f4f7fb;
+            --success: #198754;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Segoe UI", Roboto, Arial, sans-serif; background-color: var(--light-bg); line-height: 1.65; color: #111827; }
+        .page { max-width: 1000px; margin: 0 auto; padding: 30px 20px 60px; }
+        .header { display: flex; align-items: center; gap: 20px; padding: 20px 25px; background: linear-gradient(90deg, #0b5ed7, #084298); border-radius: 14px; color: white; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(11, 94, 215, 0.2); }
+        .header img { height: 52px; background: white; padding: 6px 10px; border-radius: 10px; }
+        .header-content h1 { margin: 0; font-size: 26px; font-weight: 700; }
+        .header-content p { margin: 4px 0 0; font-size: 14px; opacity: 0.9; }
+        .container { background: white; padding: 35px; border-radius: 14px; box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
+        .info-banner { background: #e8f1ff; border-left: 5px solid var(--primary); border-radius: 10px; padding: 15px 18px; margin-bottom: 25px; }
+        .info-banner strong { color: var(--primary); }
+        .chat-container { border: 2px solid #e5e7eb; border-radius: 12px; height: 500px; overflow-y: auto; padding: 20px; margin-bottom: 20px; background: #f9fafb; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .chat-container::-webkit-scrollbar { width: 8px; }
+        .chat-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .chat-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .message { margin: 12px 0; padding: 14px 18px; border-radius: 12px; max-width: 85%; word-wrap: break-word; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message strong { display: block; margin-bottom: 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .user { background: linear-gradient(135deg, #0b5ed7, #0d6efd); color: white; margin-left: auto; text-align: right; box-shadow: 0 2px 8px rgba(11, 94, 215, 0.3); }
+        .ai { background: white; border: 2px solid #e5e7eb; color: #1f2937; margin-right: auto; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+        .ai strong { color: var(--primary); }
+        .message ul { list-style-type: disc; margin: 8px 0; padding-left: 20px; }
+        .message li { margin: 4px 0; line-height: 1.6; }
+        .message h2, .message h3, .message h4 { margin-top: 12px; margin-bottom: 8px; line-height: 1.4; }
+        .message p { margin: 8px 0; line-height: 1.6; }
+        .message strong { display: inline; font-weight: 600; }
+        .loading { background: #fff4e5; border: 2px solid var(--accent); color: #666; font-style: italic; animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .input-container { display: flex; gap: 12px; align-items: center; }
+        input[type="text"] { flex: 1; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px; font-family: inherit; transition: all 0.3s ease; }
+        input[type="text"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.1); }
+        button { padding: 14px 32px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(11, 94, 215, 0.3); }
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(11, 94, 215, 0.4); }
+        button:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #eaf7ed; border: 1px solid var(--success); border-radius: 20px; font-size: 13px; color: var(--success); font-weight: 600; margin-bottom: 20px; }
+        .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: blink 2s ease-in-out infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .footer { text-align: center; margin-top: 40px; padding-top: 25px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px; }
+        .footer strong { color: #111827; }
+        .footer a { color: var(--primary); text-decoration: none; font-weight: 500; transition: color 0.3s ease; }
+        .footer a:hover { color: var(--secondary); text-decoration: underline; }
+        @media (max-width: 768px) { .header { flex-direction: column; text-align: center; } .message { max-width: 95%; } .input-container { flex-direction: column; } button { width: 100%; } }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="page"&gt;
+        &lt;div class="header"&gt;
+            &lt;img src="https://avizacademy.com/assets/images/logo_hero.png" alt="AVIZ Academy Logo"&gt;
+            &lt;div class="header-content"&gt;
+                &lt;h1&gt;AI Assistant - Amazon Bedrock&lt;/h1&gt;
+                &lt;p&gt;Powered by Amazon Nova 2 Lite · Built with AWS Lambda &amp; API Gateway&lt;/p&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="container"&gt;
+            &lt;div class="status-badge"&gt;&lt;span class="status-dot"&gt;&lt;/span&gt;AI Assistant Online&lt;/div&gt;
+            &lt;div class="info-banner"&gt;&lt;strong&gt;💡 Welcome!&lt;/strong&gt; This AI assistant is powered by Amazon Bedrock's Nova 2 Lite model. Ask me anything about AWS, technology, or general questions!&lt;/div&gt;
+            &lt;div class="chat-container" id="chatContainer"&gt;
+                &lt;div class="message ai"&gt;&lt;strong&gt;AI Assistant&lt;/strong&gt;Hello! I'm powered by Amazon Nova 2 Lite. Ask me anything!&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="input-container"&gt;
+                &lt;input type="text" id="messageInput" placeholder="Type your message here..." onkeypress="handleKeyPress(event)"&gt;
+                &lt;button onclick="sendMessage()" id="sendButton"&gt;Send&lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class="footer"&gt;&lt;strong&gt;Amazon Bedrock Workshop&lt;/strong&gt; | Built with ❤️ by &lt;strong style="color: #ff9900;"&gt;Avinash Reddy Thipparthi&lt;/strong&gt;&lt;br&gt;Subscribe to my YouTube channel: &lt;a href="https://www.youtube.com/@avizway/" target="_blank"&gt;@avizway&lt;/a&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;script&gt;
+        const API_ENDPOINT = 'YOUR_API_ENDPOINT_HERE';
+        function formatText(text) {
+            let formatted = text.replace(/&amp;/g, '&amp;amp;').replace(/&lt;/g, '&amp;lt;').replace(/&gt;/g, '&amp;gt;');
+            formatted = formatted
+                .replace(/^### (.*?)$/gm, '&lt;h4 style="margin: 12px 0 8px 0; color: #0b5ed7; font-size: 16px;"&gt;$1&lt;/h4&gt;')
+                .replace(/^## (.*?)$/gm, '&lt;h3 style="margin: 14px 0 10px 0; color: #0b5ed7; font-size: 18px;"&gt;$1&lt;/h3&gt;')
+                .replace(/^# (.*?)$/gm, '&lt;h2 style="margin: 16px 0 12px 0; color: #0b5ed7; font-size: 20px;"&gt;$1&lt;/h2&gt;')
+                .replace(/\*\*(.*?)\*\*/g, '&lt;strong style="color: #1f2937; font-weight: 600;"&gt;$1&lt;/strong&gt;')
+                .replace(/^\* (.*?)$/gm, '&lt;li style="margin: 4px 0;"&gt;$1&lt;/li&gt;')
+                .replace(/^- (.*?)$/gm, '&lt;li style="margin: 4px 0;"&gt;$1&lt;/li&gt;')
+                .replace(/\n\n+/g, '&lt;/p&gt;&lt;p style="margin: 10px 0;"&gt;')
+                .replace(/\n/g, ' ');
+            formatted = formatted.replace(/(&lt;li.*?&lt;\/li&gt;\s*)+/g, (match) =&gt; {
+                return '&lt;ul style="margin: 10px 0; padding-left: 20px; list-style-type: disc;"&gt;' + match + '&lt;/ul&gt;';
+            });
+            formatted = '&lt;p style="margin: 10px 0;"&gt;' + formatted + '&lt;/p&gt;';
+            return formatted.replace(/&lt;p[^&gt;]*&gt;\s*&lt;\/p&gt;/g, '');
+        }
+        function addMessage(content, isUser) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+            const formattedContent = isUser ? content : formatText(content);
+            messageDiv.innerHTML = `&lt;strong&gt;${isUser ? 'You' : 'AI Assistant'}&lt;/strong&gt;&lt;div style="margin-top: 8px;"&gt;${formattedContent}&lt;/div&gt;`;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        function showLoading() {
+            const chatContainer = document.getElementById('chatContainer');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message ai loading';
+            loadingDiv.id = 'loading';
+            loadingDiv.innerHTML = '&lt;strong&gt;AI Assistant&lt;/strong&gt;🤔 Thinking...';
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        function removeLoading() {
+            const loading = document.getElementById('loading');
+            if (loading) loading.remove();
+        }
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const message = input.value.trim();
+            if (!message) return;
+            addMessage(message, true);
+            input.value = '';
+            sendButton.disabled = true;
+            showLoading();
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                const data = await response.json();
+                removeLoading();
+                if (response.ok) {
+                    addMessage(data.response, false);
+                } else {
+                    addMessage(`❌ Error: ${data.error || 'Something went wrong'}`, false);
+                }
+            } catch (error) {
+                removeLoading();
+                addMessage(`❌ Error: ${error.message}`, false);
+            }
+            sendButton.disabled = false;
+            input.focus();
+        }
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') { sendMessage(); }
+        }
+        window.addEventListener('load', () =&gt; { document.getElementById('messageInput').focus(); });
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+
+        <div class="step">
+            <span class="step-number">15</span>
+            <strong>Update API Endpoint</strong>
+            <ul>
+                <li>Open the <code>index.html</code> file in a text editor</li>
+                <li>Find the line: <code>const API_ENDPOINT = 'YOUR_API_ENDPOINT_HERE';</code></li>
+                <li>Replace <code>YOUR_API_ENDPOINT_HERE</code> with your actual API Gateway URL from Step 13</li>
+                <li>Save the file</li>
+            </ul>
+            <div class="info">
+                <strong>Example:</strong><br>
+                <code>const API_ENDPOINT = 'https://227ux5mece.execute-api.ap-south-1.amazonaws.com/dev/chat';</code>
+            </div>
+        </div>
+
+        <h2 id="testing">🧪 Step 4: Testing Your AI Assistant</h2>
+
+        <div class="step">
+            <span class="step-number">16</span>
+            <strong>Test Lambda Function</strong>
+            <ul>
+                <li>Go back to your Lambda function in AWS Console</li>
+                <li>Click <strong>"Test"</strong></li>
+                <li>Create new test event: <strong>"API Gateway AWS Proxy"</strong></li>
+                <li>Event name: <code>test-bedrock</code></li>
+                <li>Replace the body with: <code>"{\\"message\\": \\"Hello, how are you?\\"}"</code></li>
+                <li>Click <strong>"Save"</strong> and then <strong>"Test"</strong></li>
+                <li>Check that you get a successful response</li>
+            </ul>
+            <div class="info">
+                <strong>Expected Response:</strong> You should receive a response from Amazon Nova 2 Lite model with a friendly greeting.
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">17</span>
+            <strong>Test API Gateway</strong>
+            <ul>
+                <li>Go to API Gateway console</li>
+                <li>Select your API → Resources → /chat → POST</li>
+                <li>Click <strong>"TEST"</strong></li>
+                <li>Request Body: <code>{"message": "Tell me about AWS"}</code></li>
+                <li>Click <strong>"Test"</strong></li>
+                <li>Verify you get a 200 response with AI-generated content</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">18</span>
+            <strong>Test Web Interface</strong>
+            <ul>
+                <li>Open your <code>index.html</code> file in a web browser</li>
+                <li>Type a message and press Enter or click Send</li>
+                <li>Verify the AI responds correctly</li>
+                <li>Try different questions to test the functionality</li>
+            </ul>
+        </div>
+
+        <h2 id="s3-hosting">🌐 Step 5: S3 Static Website Hosting with Route53</h2>
+
+        <div class="step">
+            <span class="step-number">19</span>
+            <strong>Create S3 Bucket</strong>
+            <ul>
+                <li>Navigate to <strong>S3</strong> in AWS Console</li>
+                <li>Click <strong>"Create bucket"</strong></li>
+                <li>Bucket name: <code>your-domain-name.com</code> (must match your domain)</li>
+                <li>Region: <strong>Asia Pacific Mumbai (ap-south-1)</strong></li>
+                <li>Uncheck <strong>"Block all public access"</strong></li>
+                <li>Acknowledge the warning about public access</li>
+                <li>Click <strong>"Create bucket"</strong></li>
+            </ul>
+            <div class="warning">
+                <strong>Important:</strong> The bucket name must exactly match your domain name for Route53 alias to work properly.
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">20</span>
+            <strong>Enable Static Website Hosting</strong>
+            <ul>
+                <li>Click on your newly created bucket</li>
+                <li>Go to <strong>"Properties"</strong> tab</li>
+                <li>Scroll down to <strong>"Static website hosting"</strong></li>
+                <li>Click <strong>"Edit"</strong></li>
+                <li>Select <strong>"Enable"</strong></li>
+                <li>Hosting type: <strong>Host a static website</strong></li>
+                <li>Index document: <code>index.html</code></li>
+                <li>Error document: <code>index.html</code> (optional)</li>
+                <li>Click <strong>"Save changes"</strong></li>
+                <li>📝 <strong>Copy the Bucket website endpoint</strong> - you'll need this for testing</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">21</span>
+            <strong>Configure Bucket Policy</strong>
+            <ul>
+                <li>Go to <strong>"Permissions"</strong> tab</li>
+                <li>Scroll to <strong>"Bucket policy"</strong></li>
+                <li>Click <strong>"Edit"</strong></li>
+                <li>Paste the following policy (replace <code>your-bucket-name</code> with your actual bucket name):</li>
+            </ul>
+            <pre><code>{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::your-bucket-name/*"
+        }
+    ]
+}</code></pre>
+            <ul>
+                <li>Click <strong>"Save changes"</strong></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">22</span>
+            <strong>Upload Website Files</strong>
+            <ul>
+                <li>Go to <strong>"Objects"</strong> tab</li>
+                <li>Click <strong>"Upload"</strong></li>
+                <li>Click <strong>"Add files"</strong></li>
+                <li>Select your <code>index.html</code> file</li>
+                <li>Click <strong>"Upload"</strong></li>
+                <li>Wait for upload to complete</li>
+            </ul>
+            <div class="info">
+                <strong>Test Your Website:</strong> Use the bucket website endpoint from Step 20 to verify your site is accessible.
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">23</span>
+            <strong>Configure Route53 Hosted Zone</strong>
+            <ul>
+                <li>Navigate to <strong>Route53</strong> in AWS Console</li>
+                <li>Click <strong>"Hosted zones"</strong> in the left sidebar</li>
+                <li>Select your domain's hosted zone (or create one if needed)</li>
+                <li>Click <strong>"Create record"</strong></li>
+            </ul>
+            <div class="warning">
+                <strong>Prerequisites:</strong> You must have a registered domain and a hosted zone in Route53 before proceeding.
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">24</span>
+            <strong>Create A Record for Root Domain</strong>
+            <ul>
+                <li>Record name: <strong>Leave blank</strong> (for root domain) or enter subdomain</li>
+                <li>Record type: <strong>A - Routes traffic to an IPv4 address</strong></li>
+                <li>Enable <strong>"Alias"</strong> toggle</li>
+                <li>Route traffic to: <strong>Alias to S3 website endpoint</strong></li>
+                <li>Choose region: <strong>Asia Pacific Mumbai (ap-south-1)</strong></li>
+                <li>Choose S3 bucket: Select your bucket from the dropdown</li>
+                <li>Routing policy: <strong>Simple routing</strong></li>
+                <li>Evaluate target health: <strong>No</strong></li>
+                <li>Click <strong>"Create records"</strong></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">25</span>
+            <strong>Create CNAME Record for www Subdomain (Optional)</strong>
+            <ul>
+                <li>Click <strong>"Create record"</strong> again</li>
+                <li>Record name: <code>www</code></li>
+                <li>Record type: <strong>CNAME</strong></li>
+                <li>Value: <code>your-domain-name.com</code> (your root domain)</li>
+                <li>TTL: <strong>300</strong></li>
+                <li>Click <strong>"Create records"</strong></li>
+            </ul>
+            <div class="info">
+                <strong>Note:</strong> This step allows users to access your site with www.your-domain.com
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">26</span>
+            <strong>Verify DNS Propagation</strong>
+            <ul>
+                <li>Wait 5-10 minutes for DNS changes to propagate</li>
+                <li>Open your browser and navigate to your domain</li>
+                <li>Verify your AI Assistant website loads correctly</li>
+                <li>Test the chat functionality</li>
+            </ul>
+            <div class="success">
+                <strong>Success!</strong> Your AI Assistant is now live on your custom domain with S3 static hosting and Route53 DNS management.
+            </div>
+        </div>
+
+        <h2>🗝️ Key Learning Points</h2>
+        
+        <div class="info">
+            <strong>What You've Learned:</strong>
+            <ul>
+                <li>🔧 <strong>Serverless Architecture:</strong> Lambda + API Gateway + Bedrock integration</li>
+                <li>🤖 <strong>AI Model Access:</strong> Using inference profiles vs direct model IDs</li>
+                <li>🌐 <strong>Cross-Region Inference:</strong> Global routing for better performance</li>
+                <li>🔒 <strong>IAM Permissions:</strong> Bedrock access and security best practices</li>
+                <li>🌍 <strong>CORS Configuration:</strong> Enabling web browser access to APIs</li>
+                <li>📊 <strong>Error Handling:</strong> CloudWatch Logs for debugging</li>
+                <li>💰 <strong>Cost Optimization:</strong> Pay-per-use model with inference profiles</li>
+                <li>☁️ <strong>S3 Static Hosting:</strong> Hosting web applications on S3 with public access</li>
+                <li>🌐 <strong>Route53 DNS:</strong> Mapping custom domains to S3 website endpoints</li>
+            </ul>
+        </div>
+
+        <h2>🎉 Congratulations!</h2>
+        
+        <div class="success">
+            <strong>You've successfully built and deployed your AI Assistant!</strong><br>
+            Your application now includes:
+            <ul>
+                <li>✅ Lambda function with Bedrock integration</li>
+                <li>✅ API Gateway for HTTP endpoints</li>
+                <li>✅ Web interface for user interaction</li>
+                <li>✅ Amazon Nova 2 Lite AI model via Global Inference Profile</li>
+                <li>✅ S3 static website hosting with public access</li>
+                <li>✅ Route53 custom domain mapping</li>
+            </ul>
+        </div>
+
+        <hr>
+        <p style="text-align: center; color: #666;">
+            <strong>Amazon Bedrock Workshop</strong> | Built with ❤️ by <strong style="color: #ff9900;">Avinash Reddy Thipparthi</strong><br>
+            Subscribe to my YouTube channel: <a href="https://www.youtube.com/@avizway/" target="_blank" style="color: #0b5ed7; text-decoration: none; font-weight: 500;">@avizway</a>
+        </p>
+    </div>
+</body>
+</html>
