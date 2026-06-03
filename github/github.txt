@@ -1,5 +1,11 @@
 
 
+LEARN GIT USING A GAME : https://git-game-updated.vercel.app/
+
+=======
+
+
+
 https://git-scm.com/		--> Download and install git (In your laptop)
 
 
@@ -233,6 +239,50 @@ git stash show -p	--> show stash content
 git stash drop		--> Drop a stash after apply
 git stash push -m "msg"	--> create a stash with custom msg
 git stash pop		-> apply and remove the stash
+
+=================
+
+D: 03/06/2026
+
+
+LEARN GIT USING A GAME : https://git-game-updated.vercel.app/
+
+e06f7ff (HEAD -> feature-login) Commit C - Added dark theme
+b16453e Commit B - Security fix
+a579dc3 Commit A - Added login page
+4387cc9 (main) Initial commit
+
+git cherry-pick b16453e
+
+--------
+
+Pull Request : generally its a "request to merge my work into the main branch".. 
+
+git checkout -b feature-login
+
+git add . && git commit -m "msg"
+
+
+git push origin feature-login
+
+
+https://github.com/avizway1/awar08-gitdemo/pull/new/feature-login
+
+
+
+==========================
+
+
+https://docs.google.com/spreadsheets/d/1Cv-AdyzoUC54KtKCxcQn4UtWeIYk996hthRX4xvQFWI/edit?usp=sharing
+
+
+
+
+
+
+
+
+
 
 
 
