@@ -1,0 +1,110 @@
+
+
+IaC :  
+Cloudformation (JSON & YAML) : Limited to only AWS 
+Terraform (HCL) : Cloud Agnostic :  AWS, Azure, GCP, Git
+
+
+Configuration Management : Ansible, puppet, chef, saltstack, Systems Manager : software/package management inside instances, user manageemnt... Idempotent for installations.. 
+
+Server Templating : docker, aws golden AMI, Vagrant : pre configured settings..
+
+Provisioning Tools : Terraform, Cloudformation, opentofu, pulumu : Designed for resource management.. 
+
+----
+
+Created by Mitchell Hashimito, 2014. 
+--> Terraform writtens in go language.
+--> Originally developed by Hashicorp and now maintained by IBM.
+
+=====================
+
+Download & Install terraform : https://developer.hashicorp.com/terraform/install
+
+
+Windows : Download the terraform file based on your laptop architecture. 
+Create a folder with name "terraform" in C:/ Drive
+Unzip and move the "terraform.exe" file to c:/terraform folder. : COpy the path and add it as system varibale. 
+
+Mycomputer --> rightclick --> properties --> Advanced --> "environment variables" --> "Edit the system environment variables" --> add the path --> Close the comamnd prompt and reopen, then test 
+
+terraform --version
+
+===================
+
+In your laptop configure "aws cli" tools and terraform automatically uses this credentails to create/manage resources in aws environment.
+
+====================
+
+--> We declare things as blocks in terraform.
+--> We write code in "main.tf" file.
+
+Providers : is nothing but a plugin that enable terraform communications with API of Cloud environment. 
+
+provider "aws" {
+region = "ap-south-1"
+}
+
+---
+
+Initilise the Terraform : terraform init
+
+--> Prepares our working directory/folder for terraform usage by initilising it. 
+--> It downloads the provider pluings automatically.
+--> Validates configuration file structure.
+
+** THis need to run only once when we create a project. (We need to run again if we change the backend)
+
+========
+
+Resources : We can define what we want to create in AWS environemnt, We need to define using "resource" block.
+
+Resource block contains below 3 imp components:
+
+resource-type: aws_instance 	(should match tf preconfigured names)
+Name : webserver				(This can be anything)
+Arguments : AMI ID, Instance type
+
+========
+
+Install HashiCorp Terraform plugin in your visual studio code:
+
+https://marketplace.visualstudio.com/items?itemName=HashiCorp.terraform
+
+========
+
+terraform statefile : act as source of truth : THis track our resources and its current state. 
+** Golden Rule : Never edit this file manually.
+
+terraform fmt				: Formats the existing terraform code with proper indentation
+terraform validate			: Looks for systax and configuration errors in tf files.
+
+** Best Practice : Run "fmt" and "validate" before executing the actual commands i.e; apply
+
+terraform plan				: THis is like a dryrun. Tells us what happens if we run this using "terraform apply" option
+
+terraform apply				: THis command actually creates the resources.
+
+terraform apply --auto-approve	:	It wont ask for confirmation to type "yes"
+
+terraform destroy			: Deletes/terminates the resources from our env.
+
+
+----------
+
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply
+terraform destroy
+
+
+
+
+
+
+
+
+
+
