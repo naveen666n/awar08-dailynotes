@@ -59,7 +59,7 @@ Congratulations! You have successfully enabled HTTPS on https://awswithavinashre
 
 ===========
 
-BELOW STEPS WORKS WITH ELB alonf with ACM SERVICE
+BELOW STEPS WORKS WITH ELB along with ACM SERVICE
 
 ============
 
