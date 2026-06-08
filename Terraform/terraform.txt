@@ -170,17 +170,115 @@ terraform init -upgrade			--> TO upgrade from one version to another version
 Mostly we use ~> 
 we commit .terraform.lock.hcl file to github to maintain same version lock for the whole team members.
 
----
+================
+
+D: 08/06/2026
+
+taint is Deprecated
+
+Its replaced with -replace flag
+
+Plan to see what will replace:
+terraform plan -replace="aws_instance.webserver"
+
+terraform apply -replace="aws_instance.webserver"
+
+--> When any resource got corrupted. 
+--> What a fresh instance without changing the code, we can us it.
+
+----
+
+Drift Detection : Identifying the resource modification outside of  terraform.
+
+To identify the drift detection we can run "plan -refresh-only".
+
+terraform plan -refresh-only
+
+We will get output with msg msg, if resource got changed..
+"Note: Objects have changed outside of Terraform"
+
+1). Update the only statefile to match with the current infra/resources settings. 
+
+terraform apply -refresh-only
+
+
+============
+
+
+TRACE : Everything - every api call and its response + debug + info + warning + errors
+DEBUG : API Calls + info + errors + warning
+INFO : General operations info + warnings + errors 
+WARN : Warnings + Errors : TO identify potential problems.
+ERROR : Errors only : Production / specifically errors monitoring.
+
+To set log level: 
+
+export TF_LOG=INFO
+export TF_LOG=DEBUG
+
+export TF_LOG_PATH="tflogs.log"		--> Send all the logs to a dedicated log file. 
+
+unset TF_LOG						--> Turn off logging
+
+
+-----
+
+terraform plan -out=myplan.tfplan
+
+terraform show "myplan.tfplan"
+terraform apply "myplan.tfplan"
+
+======================
+
+Terraform statefile : 
+
+--> TF statefile records "who owns what" (Which resources was created, what aws the resource config)
+--> tfstate file is the "source of truth" for all resources managed by terraform.
+resource type
+resource name
+dependency graph
+
+terraform state list
+
+terraform state show aws_instance.webserver
+
+backend : where the tfstate file is stored.
+
+local backend : statefile is stored locally, along with regular tf code.
+--> Only works for us
+--> locking feature wont work
+--> If you delete accidentally = disaster.
+
+terraform {
+  backend "local" {
+    path = "/Users/avizway/Desktop/Batch 8/tflock/terraform.tfstate"
+  }
+}
+
+
+We need to add above block and run the init command to change the state location. 
+
+terraform init -migrate-state
+
+
+---------
+
+
+terraform {
+  backend "s3" {
+    bucket       = "aviz-terraform-statedemo"
+    key          = "ec2proj/terraform.tfstate"
+    region       = "ap-south-1"
+    use_lockfile = true
+  }
+}
 
 
 
+Emergency use only: 
 
-
-
-
-
-
-
+terraform force-unlock <lock-id>
+terraform force-unlock 13d1420a-b06b-76f1-4fbd-fe9b5f87d4b1
 
 
 
