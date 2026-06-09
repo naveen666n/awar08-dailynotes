@@ -280,6 +280,134 @@ Emergency use only:
 terraform force-unlock <lock-id>
 terraform force-unlock 13d1420a-b06b-76f1-4fbd-fe9b5f87d4b1
 
+=======================
+
+D: 09/06/2026
+
+
+variable "instance_type" {
+	type = string / bool / number
+	default = t3.micro / 2 / true
+}
+
+
+string : Most comonly used Single text value
+"t3.micro" "ami-ashfgysdhfvsdhh"
+
+variable "instance_type" {
+	type = string
+	default = t3.micro
+}
+
+Number : used for counts, size, port number, timeout.. 
+
+variable "instance_count" {
+	type = number
+	default = 2
+}
+
+Bool (Boolean) : we will have true or false. 
+enable_stop_protection : true
+
+variable "enable_stop_protection" {
+	type = bool
+	default = true
+}
+
+---
+
+list(string): an ordered list of strings.. 
+
+variable "instance_type" {
+	type = list(string)
+	default = ["t3.micro", "t3.small", "t3.medium"]
+}
+
+Access : var.instance_type[1]
+
+---
+
+map(string): key value pairs of strings.. 
+
+variable "instance_type_per_env" {
+	type = map(string)
+	default = [
+	dev = "t3.micro" 
+	uat = "t3.small" 
+	prd = "t3.medium"]
+}
+
+Access : var.instance_type_per_env["dev"]
+
+---
+
+tuple : An ordered collection of mixed types - 
+
+variable "server_config" {
+	type = tuple([string, number, bool])
+	default = ["t3.micro", 22, true]
+}
+
+
+=======================
+
+project/
+|
+|_main.tf					--> Resources definition
+|
+|_Varibales.tf				--> Variables declaration
+|
+|_outputs.tf				--> Deisplays/gets the output values
+
+
+1. Highest priority 	: CLI Flag (terraform apply -var="instance_type=t3.small")
+2. 		.tfvars file 	: terraform apply -var-file="dev.tfvars"
+3. 		Environment var	: export TF_VAR_Instance_type="t3.micro"
+4. Lowest Priority		: default value defined in variables block
+
+
+1. We can pass variables when running terraform apply 
+
+ex: terraform apply -var="instance_type=t3.small"
+
+2. we are preparing .tfvars file, as  resource values changed based on env.
+
+terraform apply -var-file="dev.tfvars"
+terraform apply -var-file="uat.tfvars"
+terraform apply -var-file="prd.tfvars"
+
+
+------
+
+each workspace will have its own statefile.
+
+terraform.tfstate.d/
+|
+|_ dev/
+	|__ terraform.tfstate			--> only dev resources will be tracked
+|_ uat/
+	|__ terraform.tfstate			--> only uat resources will be tracked
+
+
+terraform workspace list
+terraform workspace show
+
+terraform workspace new dev
+terraform workspace new uat
+terraform workspace new prd
+
+
+terraform workspace select dev
+terraform plan -var-file="dev.tfvars"
+terraform apply -var-file="dev.tfvars"
+
+terraform workspace select uat
+terraform plan -var-file="uat.tfvars"
+terraform apply -var-file="uat.tfvars"
+
+terraform workspace select prd
+terraform plan -var-file="prd.tfvars"
+terraform apply -var-file="prd.tfvars"
 
 
 
