@@ -154,6 +154,7 @@ docker inspect <container-id>
 
 docker stats
 
+-m
 --memory=256m
 --memory=512m
 --cpus=1
@@ -263,6 +264,161 @@ docker network create my_network
 
 docker run -dit --name c1 --network my_network alpine
 docker run -dit --name c2 --network my_network alpine
+
+=================
+
+D: 18/06/2026
+
+Host : COntainer uses the host machiene's IP and ports directly. No Virtual Network Layer.
+--> No need for -p (port mapping) - Container port is the host port.
+
+
+Bridge Mode : 
+--> It will have its own virtual IP inside docker network
+--> Required port mapping (-p 80:80 / -p 8080:80)
+--> More isolated and secured
+--> Works on Linux, mac and windows
+--> One additional hop added, so, compared to host mode, small latency
+--> Best used for enterprise and multi container appliations.
+
+Host Mode: 
+--> Shared host's IP and Port
+--> port mapping not required as it uses host port.
+-->  As this uses the host network, its Less isolated.
+--> Works on Linux only
+--> Sighltly faster as there is no NAT/Docker network.
+--> System level tools or Monitoring agents. 
+
+===============
+
+Docker volumes : 
+
+docker volume ls				--> Lists the volumes
+
+docker volume create my_data	--> creates a volume
+
+docker volume inspect my_data
+
+sudo su
+cd /var/lib/docker/volumes/my_data/_data
+
+---
+
+Map volume to a container: 
+
+Named VOlume: 
+docker run -d --name mysql-db -v my_data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=s3cret123 mysql
+
+--> If "my_data" volume doesn't exist, Docker creates it automatically.
+
+Anonymous Volume : 
+docker run -d --name mysql-db2 -v /var/lib/mysql -e MYSQL_ROOT_PASSWORD=s3cret123 mysql
+
+
+Bound Mount / Mount a Host path to container path: 
+
+docker run -d --name mynginx1 -p 80:80 -v /home/ec2-user/myweb:/usr/share/nginx/html nginx
+docker run -d --name mynginx2 -p 8080:80 -v /home/ec2-user/myweb:/usr/share/nginx/html nginx
+docker run -d --name mynginx3 -p 8888:80 -v /home/ec2-user/myweb:/usr/share/nginx/html nginx
+
+Read-only bind mount: 
+docker run -d --name mynginx3 -p 8888:80 -v /home/ec2-user/myweb:/usr/share/nginx/html:ro,z nginx
+
+---
+
+Recently we are using --mount syntax also.. 
+
+cd /var/lib/docker/volumes/my_data/_data
+create index.html
+
+docker run -d -p 8088:80 --mount source=my_data,target=/usr/share/nginx/html,readonly nginx
+
+-----
+
+docker run -d --name maheshtest -p 80:80 -v /home/ec2-user/myweb:/usr/local/apache2/htdocs httpd
+
+----
+
+---
+
+FROM	: Sets the base image. Must be the first instruction in every Dockerfile.
+
+FROM ubuntu:20.04
+FROM python:3.9-slim
+FROM node:latest
+FROM alpine
+FROM bookwarm
+
+---
+
+RUN 	: Executes commands during the build process. 
+
+RUN apt-get update && apt-get install nginx -y
+RUN dnf update && dnf install httpd -y
+
+use && to combine multiple comamnds into single layer. 
+
+---
+
+COPY	: Copies files/Directories from our hosy machine into the image. 
+
+COPY <src-path> <container-dest-path>
+COPY src/ /app
+
+---
+
+ADD		: Similar to COPY, But it also supports "Zip file & zip extracts"
+
+ADD my_webcont.tar.gz /app
+
+use COPY option, Unless you specifically need to extract a zip file. 
+
+---
+
+CMD		: Sets the default command to run when the container starts. CMD Gets overridden if you pass arguments while you are executing 'docker run'.
+
+CMD ["nginx", "-g", "daemon off;"] 
+
+
+FROM amazonlinux:2023
+CMD ["echo", "hello from AVINASH"]		--> THis image build as "cmd-demo" and when we run it.. 
+
+Not passing argument: 
+docker run cmd-demo		--> "hello from AVINASH"
+
+passing "date" comamnd while running the image
+docker run cmd-demo	date --> Thu Jun 18 08:25:20 IST 2026
+docker run cmd-demo	"hello from OVERWRITE for CMD" --> hello from OVERWRITE for CMD
+
+---
+
+ENTRYPOINT 	: Defines a comamnd that always runs using ENTRYPOINT, Even if arguments are passed with 'docker run'.
+
+ENTRYPOINT ["echo", "hello from AVINASH"]
+
+FROM amazonlinux:2023
+ENTRYPOINT ["echo", "hello from AVINASH"]		--> THis image build as "entrypoint-demo" and when we run it.. 
+
+Not passing argument: 
+docker run entrypoint-demo		--> "hello from AVINASH"
+
+passing "date" comamnd while running the image
+docker run entrypoint-demo	"Docker for Students" --> hello from AVINASH Docker for Students
+
+We can combine both "CMD" and "ENTRYPOINT"
+
+FROM python:3.8
+
+ENTRYPOINT["python"]
+CMD["app.py"]
+
+docker run python-demo	--> python app.py
+docker run python-demo test.py	--> python test.py
+
+-----
+
+
+
 
 
 
