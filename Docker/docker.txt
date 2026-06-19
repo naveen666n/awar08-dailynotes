@@ -358,12 +358,20 @@ RUN dnf update && dnf install httpd -y
 
 use && to combine multiple comamnds into single layer. 
 
+----
+
+WORKDIR		: Sets the working directory for all subsequent instructions (RUN, COPY, CMD)
+
+WORKDIR /app
+WORKDIR /usr/share/nginx
+
 ---
 
 COPY	: Copies files/Directories from our hosy machine into the image. 
 
 COPY <src-path> <container-dest-path>
 COPY src/ /app
+COPY . .
 
 ---
 
@@ -416,6 +424,89 @@ docker run python-demo	--> python app.py
 docker run python-demo test.py	--> python test.py
 
 -----
+
+ENV			: Sets the environment variables available during build and at runtime.
+
+ENV APP_ENV=production
+ENV NAME=avinash
+
+-----
+
+LABEL		: Adds metadata to the image (author, version, description)
+
+LABEL maintainer="avizway@gmail.com" version="1.0"
+
+----
+
+EXPOSE		: Document which port container listens on. DOES NOT actually publicj the port, We still need -p when running the container.
+
+EXPOSE 80
+EXPOSE 8080
+
+---
+
+USER	: Sets the user (optionally group) for running the container. Improves security by avoiding root user.
+
+---
+
+VOLUME 	: Create a mount point for persistent or shared data
+
+VOLUME /var/lib/mysql
+
+---
+
+HEALTHCHECK	: tells docker how to check if the contianer is healthy and still working properly.
+
+HEALTHCHECK CMD curl --fail httpd://localhost:80 || exit 1
+
+---
+
+SHELL	: Changes the default shell used for RUN instructions
+
+SHELL ["/bin/bash", "-c"]
+
+---
+
+ARG		: We can define varables available only during the build process (not at runtime)
+
+ARG VERSION=latest
+
+----
+
+STOPSIGNAL : instruction in a Dockerfile configures the specific system call signal that Docker sends to the container's main process (PID 1) to trigger a shutdown
+
+STOPSIGNAL signal
+STOPSIGNAL SIGQUIT
+STOPSIGNAL SIGWINCH
+
+=====================
+
+Python -> Voting Application
+
+AWS vs Azure
+
+
+docker buildx build --platform linux/amd64 -t my-app .
+
+docker build cloudvoting:latest .
+
+
+=================
+
+Prepare a docker image for below programing language.
+
+python
+nodejs
+go
+ruby
+java
+
+
+
+
+
+
+
 
 
 

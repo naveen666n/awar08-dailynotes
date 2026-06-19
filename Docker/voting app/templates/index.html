@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS vs Azure | Aviz Academy</title>
+  <style>
+    :root { --navy:#1A1A2E; --orange:#FF6600; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      font-family:'JetBrains Mono', monospace;
+      background:var(--navy); color:#fff; min-height:100vh;
+      display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    .card {
+      background:#22223a; border-radius:16px; padding:40px;
+      max-width:560px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,.4);
+      border:1px solid #2e2e4d;
+    }
+    h1 { text-align:center; font-size:1.6rem; margin-bottom:6px; }
+    h1 span { color:var(--orange); }
+    .sub { text-align:center; color:#9a9ab5; font-size:.8rem; margin-bottom:28px; }
+    .options { display:flex; gap:16px; margin-bottom:24px; }
+    .vote-btn {
+      flex:1; padding:28px 12px; border:2px solid #34345a; border-radius:12px;
+      background:#1a1a2e; color:#fff; font-family:inherit; font-size:1.2rem;
+      font-weight:700; cursor:pointer; transition:all .2s;
+    }
+    .vote-btn:hover { border-color:var(--orange); transform:translateY(-3px); }
+    .vote-btn.aws:hover { box-shadow:0 8px 20px rgba(255,153,0,.25); }
+    .vote-btn.azure:hover { box-shadow:0 8px 20px rgba(0,120,212,.25); }
+    .bar-wrap { margin:14px 0; }
+    .bar-label { display:flex; justify-content:space-between; font-size:.85rem; margin-bottom:6px; }
+    .bar { height:26px; background:#1a1a2e; border-radius:6px; overflow:hidden; }
+    .bar-fill { height:100%; width:0; transition:width .6s ease; display:flex;
+      align-items:center; padding-left:10px; font-size:.75rem; font-weight:700; }
+    .fill-aws { background:var(--orange); }
+    .fill-azure { background:#0078D4; }
+    .total { text-align:center; color:#9a9ab5; font-size:.8rem; margin-top:18px; }
+    footer { text-align:center; margin-top:26px; font-size:.7rem; color:#6a6a85; }
+    footer a { color:var(--orange); text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>{{ option_a }} <span>vs</span> {{ option_b }}</h1>
+    <p class="sub">Cast your vote — Aviz Academy Docker Demo</p>
+
+    <div class="options">
+      <button class="vote-btn aws" onclick="castVote('{{ option_a }}')">☁️ {{ option_a }}</button>
+      <button class="vote-btn azure" onclick="castVote('{{ option_b }}')">🔷 {{ option_b }}</button>
+    </div>
+
+    <div class="bar-wrap">
+      <div class="bar-label"><span>{{ option_a }}</span><span id="lbl-a">0%</span></div>
+      <div class="bar"><div class="bar-fill fill-aws" id="bar-a"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-label"><span>{{ option_b }}</span><span id="lbl-b">0%</span></div>
+      <div class="bar"><div class="bar-fill fill-azure" id="bar-b"></div></div>
+    </div>
+
+    <p class="total" id="total">Total votes: 0</p>
+    <footer>Learn by Doing, Not Just Watching — <a href="https://avizacademy.com">avizacademy.com</a></footer>
+  </div>
+
+  <script>
+    async function castVote(choice) {
+      const fd = new FormData(); fd.append('vote', choice);
+      const res = await fetch('/vote', { method:'POST', body:fd });
+      if (!res.ok) { alert('Vote store unavailable — is Redis running?'); return; }
+      refresh();
+    }
+    async function refresh() {
+      try {
+        const r = await fetch('/results'); if (!r.ok) return;
+        const d = await r.json();
+        document.getElementById('bar-a').style.width = d.pct_a + '%';
+        document.getElementById('bar-b').style.width = d.pct_b + '%';
+        document.getElementById('bar-a').textContent = d.votes_a;
+        document.getElementById('bar-b').textContent = d.votes_b;
+        document.getElementById('lbl-a').textContent = d.pct_a + '%';
+        document.getElementById('lbl-b').textContent = d.pct_b + '%';
+        document.getElementById('total').textContent = 'Total votes: ' + d.total;
+      } catch (e) {}
+    }
+    refresh(); setInterval(refresh, 2000);
+  </script>
+</body>
+</html>
