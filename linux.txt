@@ -396,6 +396,10 @@ Option 2 : Set a password for user, adjust the sshd configuration to use passwor
 SSH Configuration file path : /etc/ssh/sshd_config
 
 Edit the sshd config file, set "PasswordAuthentication" to "yes" and make sure to restart the sshd servcie.
+Change UsePAM from no to yes.
+
+Edit the cloud-init configuration file: sudo vim /etc/cloud/cloud.cfg
+ssh_pwauth: 1
 
 sudo systemctl restart sshd	
 
