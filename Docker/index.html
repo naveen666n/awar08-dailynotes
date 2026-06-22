@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Andhra Pradesh & Telangana — Live Weather</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap');
+
+  :root {
+    --sky-deep:    #0a1628;
+    --sky-mid:     #0f2547;
+    --sky-accent:  #1a3a6b;
+    --gold:        #f5c842;
+    --gold-muted:  #c9a52a;
+    --teal:        #38d9c0;
+    --teal-soft:   rgba(56,217,192,0.12);
+    --card-bg:     rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.09);
+    --text-primary:   #f0f4ff;
+    --text-secondary: #8fafd8;
+    --text-muted:     #4d6b96;
+    --radius:      16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(145deg, var(--sky-deep) 0%, var(--sky-mid) 60%, #112240 100%);
+    min-height: 100vh;
+    color: var(--text-primary);
+    padding: 0 0 60px;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 36px 40px 24px;
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .header-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+  header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(22px, 4vw, 36px);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.1;
+  }
+  header h1 span { color: var(--gold); }
+
+  .header-meta {
+    text-align: right;
+  }
+  .live-dot {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--teal); font-weight: 500;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  .live-dot::before {
+    content: '';
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--teal);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%      { opacity:0.4; transform:scale(1.4); }
+  }
+  #last-updated { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ── Controls ── */
+  .controls {
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-refresh {
+    background: var(--teal);
+    color: var(--sky-deep);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn-refresh:hover { opacity: 0.85; }
+  .btn-refresh:active { transform: scale(0.97); }
+  .btn-refresh:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .auto-refresh-label {
+    font-size: 13px; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .auto-refresh-label input[type=checkbox] {
+    width: 16px; height: 16px; accent-color: var(--teal); cursor: pointer;
+  }
+  #countdown { color: var(--gold); font-weight: 600; font-size: 13px; }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 8px 40px 0;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s, box-shadow 0.25s;
+    backdrop-filter: blur(6px);
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--teal), var(--gold));
+    opacity: 0.7;
+  }
+
+  .card-skeleton { animation: shimmer 1.6s linear infinite; }
+  @keyframes shimmer {
+    0%   { opacity: 0.5; }
+    50%  { opacity: 0.8; }
+    100% { opacity: 0.5; }
+  }
+
+  .city-row {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; margin-bottom: 20px;
+  }
+  .city-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px; font-weight: 700;
+    color: var(--text-primary);
+  }
+  .weather-icon { font-size: 44px; line-height: 1; }
+
+  .temp-block { margin-bottom: 6px; }
+  .temp-main {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 52px; font-weight: 700;
+    line-height: 1;
+    background: linear-gradient(135deg, #ffffff 30%, var(--teal) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .temp-unit { font-size: 24px; font-weight: 400; }
+  .temp-feels {
+    font-size: 13px; color: var(--text-muted);
+    margin-top: 4px; margin-bottom: 2px;
+  }
+  .description {
+    font-size: 14px; font-weight: 500;
+    color: var(--gold);
+    letter-spacing: 0.3px;
+    margin-bottom: 22px;
+  }
+
+  /* ── Stats grid inside card ── */
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .stat-label {
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--text-muted); margin-bottom: 4px;
+  }
+  .stat-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px; font-weight: 600;
+    color: var(--text-primary);
+  }
+  .stat-value small { font-size: 11px; color: var(--text-secondary); font-weight: 400; }
+
+  .card-updated {
+    margin-top: 16px;
+    font-size: 11px; color: var(--text-muted);
+    text-align: right;
+  }
+
+  /* ── Error state ── */
+  .card-error { border-color: rgba(255,80,80,0.3); }
+  .error-msg { color: #ff6b6b; font-size: 14px; margin-top: 12px; }
+
+  /* ── Rain card ── */
+  .card-rain {
+    border-color: rgba(80,160,255,0.45) !important;
+    background: linear-gradient(145deg, rgba(20,50,100,0.55), rgba(10,30,70,0.4)) !important;
+  }
+  .card-rain::before {
+    background: linear-gradient(90deg, #4fc3f7, #1565c0) !important;
+    opacity: 1 !important;
+  }
+  .rain-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(79,195,247,0.15);
+    border: 1px solid rgba(79,195,247,0.35);
+    color: #4fc3f7;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 99px;
+    margin-top: 6px;
+  }
+  /* animated rain drops on icon */
+  .rain-icon-wrap {
+    position: relative; display: inline-block;
+  }
+  .rain-drop {
+    position: absolute;
+    width: 2px; border-radius: 99px;
+    background: linear-gradient(180deg, transparent, #4fc3f7);
+    animation: rainFall 0.9s linear infinite;
+    opacity: 0;
+  }
+  .rain-drop:nth-child(1){ left:30%; height:10px; animation-delay:0s;   animation-duration:0.85s; }
+  .rain-drop:nth-child(2){ left:55%; height:14px; animation-delay:0.2s; animation-duration:0.95s; }
+  .rain-drop:nth-child(3){ left:75%; height:9px;  animation-delay:0.4s; animation-duration:0.80s; }
+  .rain-drop:nth-child(4){ left:15%; height:12px; animation-delay:0.6s; animation-duration:1.00s; }
+  @keyframes rainFall {
+    0%   { top: 48px; opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { opacity: 0.6; }
+    100% { top: 76px; opacity: 0; }
+  }
+
+  /* ── Comparison bar ── */
+  .comparison {
+    margin: 32px 40px 0;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 28px;
+    backdrop-filter: blur(6px);
+  }
+  .comparison h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px; font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .legend {
+    display: flex; gap: 18px; margin-bottom: 22px; flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--text-muted);
+  }
+  .legend-swatch {
+    width: 28px; height: 6px; border-radius: 99px;
+  }
+  .bar-row {
+    display: flex; align-items: center;
+    gap: 14px; margin-bottom: 16px;
+  }
+  .bar-city {
+    width: 130px; font-size: 13px; color: var(--text-secondary);
+    flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+  }
+  .bar-track {
+    flex: 1; height: 10px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 99px; overflow: visible; position: relative;
+  }
+  .bar-fill {
+    height: 100%; border-radius: 99px;
+    transition: width 0.9s cubic-bezier(0.4,0,0.2,1),
+                background 0.5s ease;
+    position: relative;
+  }
+  /* glow on the highest bar */
+  .bar-fill.rank-1::after {
+    content: '';
+    position: absolute; right: -1px; top: 50%;
+    transform: translateY(-50%);
+    width: 14px; height: 14px; border-radius: 50%;
+    background: inherit;
+    box-shadow: 0 0 10px 4px rgba(255,100,50,0.5);
+  }
+  .bar-temp {
+    width: 58px; text-align: right;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; font-weight: 600;
+    color: var(--text-primary); flex-shrink: 0;
+  }
+  .bar-rank {
+    width: 20px; font-size: 13px; flex-shrink: 0;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    header, .controls, .grid, .comparison { padding-left: 16px; padding-right: 16px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <p class="header-title">Live Weather Dashboard</p>
+    <h1>Andhra Pradesh &amp; <span>Telangana</span></h1>
+  </div>
+  <div class="header-meta">
+    <div class="live-dot">Live Data</div>
+    <div id="last-updated">Fetching…</div>
+  </div>
+</header>
+
+<div class="controls">
+  <button class="btn-refresh" id="refresh-btn" onclick="loadWeather()">⟳ Refresh Now</button>
+  <label class="auto-refresh-label">
+    <input type="checkbox" id="auto-refresh" checked/>
+    Auto-refresh every <span id="countdown">60</span>s
+  </label>
+</div>
+
+<div class="grid" id="card-grid">
+  {% for city in cities %}
+  <div class="card card-skeleton" id="card-{{ loop.index }}">
+    <div class="city-row">
+      <div>
+        <div class="city-name">{{ city }}</div>
+        <div class="description" style="color:var(--text-muted)">Loading…</div>
+      </div>
+      <div class="weather-icon">⏳</div>
+    </div>
+    <div class="temp-main">--<span class="temp-unit">°C</span></div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="comparison" id="comparison-section">
+  <h2>🌡 Temperature Comparison</h2>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:#ef4444"></div> Hottest</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#f97316"></div> Hot</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#eab308"></div> Warm</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#38d9c0"></div> Coolest</div>
+  </div>
+  <div id="comparison-bars">
+    {% for city in cities %}
+    <div class="bar-row" id="bar-row-{{ loop.index }}">
+      <div class="bar-city" id="bar-city-{{ loop.index }}">{{ city }}</div>
+      <div class="bar-track"><div class="bar-fill" id="bar-{{ loop.index }}" style="width:0%"></div></div>
+      <div class="bar-temp" id="bar-temp-{{ loop.index }}">--</div>
+      <div class="bar-rank" id="bar-rank-{{ loop.index }}"></div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+const CITIES = {{ cities | tojson }};
+let countdownVal = 60;
+let countdownTimer = null;
+
+function windDir(deg) {
+  const dirs = ['N','NE','E','SE','S','SW','W','NW'];
+  return dirs[Math.round(deg / 45) % 8];
+}
+
+// Returns CSS color for a rank (1=hottest → 4=coolest)
+function rankColor(rank, total) {
+  const palette = ['#ef4444','#f97316','#eab308','#38d9c0'];
+  return palette[Math.min(rank - 1, palette.length - 1)];
+}
+
+// Rank medals
+const MEDALS = ['🥇','🥈','🥉','4️⃣'];
+
+function buildRainIconHTML(emoji) {
+  return `<div class="rain-icon-wrap">
+    <span style="font-size:44px;line-height:1">${emoji}</span>
+    <div class="rain-drop"></div>
+    <div class="rain-drop"></div>
+    <div class="rain-drop"></div>
+    <div class="rain-drop"></div>
+  </div>`;
+}
+
+function renderCard(data, idx) {
+  const card = document.getElementById('card-' + (idx + 1));
+  if (!card) return;
+  card.classList.remove('card-skeleton');
+
+  if (data.error) {
+    card.classList.add('card-error');
+    card.innerHTML = `
+      <div class="city-name">${data.city}</div>
+      <p class="error-msg">⚠️ ${data.error}</p>`;
+    return;
+  }
+
+  const isRain = data.is_raining;
+  if (isRain) card.classList.add('card-rain');
+  else card.classList.remove('card-rain');
+
+  const iconHTML = isRain
+    ? buildRainIconHTML(data.icon)
+    : `<div class="weather-icon">${data.icon}</div>`;
+
+  const rainBadge = isRain
+    ? `<div class="rain-badge">🌧 Rain Alert</div>`
+    : '';
+
+  card.innerHTML = `
+    <div class="city-row">
+      <div>
+        <div class="city-name">${data.city}</div>
+        <div class="description">${data.icon} ${data.description}</div>
+        ${rainBadge}
+      </div>
+      ${iconHTML}
+    </div>
+    <div class="temp-block">
+      <div class="temp-main">${data.temperature}<span class="temp-unit">°C</span></div>
+      <div class="temp-feels">Feels like ${data.feels_like}°C</div>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Humidity</div>
+        <div class="stat-value">${data.humidity}<small> %</small></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Wind</div>
+        <div class="stat-value">${data.wind_speed}<small> km/h ${windDir(data.wind_direction)}</small></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Precipitation</div>
+        <div class="stat-value">${data.precipitation}<small> mm</small></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Pressure</div>
+        <div class="stat-value">${data.pressure}<small> hPa</small></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Visibility</div>
+        <div class="stat-value">${data.visibility}<small> km</small></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">UV Index</div>
+        <div class="stat-value">${data.uv_index}</div>
+      </div>
+    </div>
+    <div class="card-updated">Updated: ${data.updated}</div>`;
+}
+
+function renderBars(allData) {
+  const valid = allData.filter(d => !d.error);
+  if (!valid.length) return;
+
+  // Sort descending by temperature to get ranks
+  const sorted = [...valid].sort((a, b) => b.temperature - a.temperature);
+  const rankMap = {};
+  sorted.forEach((d, i) => { rankMap[d.city] = i + 1; });
+
+  const temps = valid.map(d => d.temperature);
+  const minT = Math.min(...temps);
+  const maxT = Math.max(...temps);
+  const range = maxT - minT || 1;
+
+  allData.forEach((data, idx) => {
+    const fill  = document.getElementById('bar-' + (idx + 1));
+    const label = document.getElementById('bar-temp-' + (idx + 1));
+    const rank  = document.getElementById('bar-rank-' + (idx + 1));
+    if (!fill || !label) return;
+
+    if (data.error) { label.textContent = 'Err'; return; }
+
+    const r = rankMap[data.city] || allData.length;
+    const color = rankColor(r, sorted.length);
+    const pct   = 15 + ((data.temperature - minT) / range) * 78;
+
+    fill.style.width      = pct + '%';
+    fill.style.background = (r === 1)
+      ? `linear-gradient(90deg, #f97316, ${color})`
+      : color;
+    fill.classList.toggle('rank-1', r === 1);
+
+    label.textContent      = data.temperature + '°C';
+    label.style.color      = color;
+    rank.textContent       = MEDALS[r - 1] || '';
+  });
+}
+
+async function loadWeather() {
+  const btn = document.getElementById('refresh-btn');
+  btn.disabled = true;
+  btn.textContent = '⟳ Loading…';
+
+  try {
+    const resp = await fetch('/api/weather');
+    const data = await resp.json();
+    data.forEach((d, i) => renderCard(d, i));
+    renderBars(data);
+    document.getElementById('last-updated').textContent =
+      'Last updated: ' + new Date().toLocaleTimeString('en-IN', {timeZone:'Asia/Kolkata'}) + ' IST';
+  } catch(e) {
+    document.getElementById('last-updated').textContent = 'Fetch failed — retrying…';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⟳ Refresh Now';
+    resetCountdown();
+  }
+}
+
+function resetCountdown() {
+  clearInterval(countdownTimer);
+  countdownVal = 60;
+  document.getElementById('countdown').textContent = countdownVal;
+  startCountdown();
+}
+
+function startCountdown() {
+  const el = document.getElementById('countdown');
+  const autoEl = document.getElementById('auto-refresh');
+  countdownTimer = setInterval(() => {
+    countdownVal--;
+    el.textContent = countdownVal;
+    if (countdownVal <= 0 && autoEl.checked) {
+      loadWeather();
+    }
+  }, 1000);
+}
+
+document.getElementById('auto-refresh').addEventListener('change', function() {
+  if (!this.checked) clearInterval(countdownTimer);
+  else startCountdown();
+});
+
+// Initial load
+loadWeather();
+</script>
+</body>
+</html>

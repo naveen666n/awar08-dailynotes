@@ -502,6 +502,214 @@ ruby
 java
 
 
+================
+
+D: 22/07/2026
+
+
+docker login
+
+entered username and password..
+
+weatherapp:v4
+
+docker tag weatherapp:v4 avizway/weatherapp:latest
+
+docker push avizway/weatherapp:latest
+
+---
+
+docker pull avizway/weatherapp:latest
+
+docker tag avizway/weatherapp:latest weatherapp:latest
+
+docker run -d -p 5000:5000 --name testdhub weatherapp:latest
+
+---
+
+export DOCKER_USERNAME="avizway"
+export DOCKER_TOKEN="shafgashsfhds_jdshgvf"
+
+add these to ~/.bashrc and run the source to take effect..
+
+echo "$DOCKER_TOKEN" | docker login --username "$DOCKER_USERNAME" --password-stdin
+
+
+docker tag weatherapp:v4 avizway/weatherapp:latest
+
+docker push avizway/weatherapp:latest
+
+
+===========
+
+ECR : Amazon Elastic Container Registry : Amazon Elastic Container Registry (ECR) is a fully managed container registry that makes it easy to store, manage, share and deploy your container images and artifacts anywhere.
+
+Pre-Req: 
+1. AWS CLI/Role should be configured
+2. Need to login to ecr repo first.. 
+
+aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 655700896650.dkr.ecr.ap-south-1.amazonaws.com
+
+
+docker tag weatherapp:v4 655700896650.dkr.ecr.ap-south-1.amazonaws.com/weatherapp:v4
+
+docker push 655700896650.dkr.ecr.ap-south-1.amazonaws.com/weatherapp:v4
+
+
+==============
+
+web --> image --> Contianer
+db --> image --> container
+
+---
+
+docker run -d --name mysql -e MYSQL_ROOT_PASSWORD=S3cret mysql:8
+docker run -d --name webapp -p 80:80 --link mysql:mysql myapp:latest
+
+
+services:
+	web:
+		image: nginx
+		ports:
+			- "80:80"
+	db:
+		image: mysql:8
+		environment:
+			MYSQL_ROOT_PASSWORD: S3cret
+
+docker compose up -d
+
+----
+
+
+1. image
+
+web:
+ image: naginx:latest
+
+2. build
+
+web:
+  build .
+  
+above step is equalant to : docker build -t web .
+
+3. port
+
+ports:
+ - "8080:80"
+
+4. environemnt
+
+environment:
+	DB_HOST: mysql
+	DB_USER: admin
+
+5. volumes
+
+(local dir map)
+volumes:
+ - ./app:/usr/share/nginx/html
+ 
+(vol map)
+volumes:
+ - my_data:/var/lib/mysql
+ 
+6. depends_on
+
+web:
+ depends-on:
+ 	- db
+
+7. networks
+
+networks:
+	app-network:
+
+web: 
+ networks: 
+  - app-network
+
+db: 
+ networks: 
+  - db-network
+
+===================
+
+Docker Compose Install : 
+
+sudo mkdir -p /usr/libexec/docker/cli-plugins
+
+sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$(uname -m) -o /usr/libexec/docker/cli-plugins/docker-compose
+
+sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+
+docker compose version
+
+
+
+=====
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+     - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    ports: 
+     - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
+  
+------
+
+docker compose up
+
+docker compose up -d
+
+docker compose up -d --build
+
+docker compose down
+
+docker compose down -v 				--> Remove the volumes
+
+docker compose down --rmi all		--> remove the images
+
+docker compose build
+
+docker compose build --no-cache
+
+docker compose ps
+
+docker compose logs
+
+docker compose logs -f				--> shows live logs
+
+docker compose logs web				--> shows one service logs
+
+docker compose exec db bash
+
+docker compose restart
+
+docker compose restart web
+
+docker compose pull					--> Just pull the images
+
+docker compose config				--> validate for syntax errors
+
+docker compose top					
+
 
 
 
