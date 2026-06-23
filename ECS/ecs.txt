@@ -1,0 +1,110 @@
+
+
+ECS Required an image to run the task.. ECS can get it from ECR service or DockerHub.
+
+task = a wrapper to the container.
+
+k8s = pod 
+ecs = task
+
+------------
+
+Fargate only: Serverless – you don't think about creating or managing servers. Great for most common workloads.
+--> You specify required CPU and Memory requirement.
+--> No server management
+--> No complex infrastructure management
+--> Pay only for what is used.
+
+
+EC2 Launch Type: 
+
+Managed instances - Amazon ECS will manage patching and scaling on your behalf while giving you configurability about the types of instances. Great for more advanced workloads.
+
+Self-managed instances - you must ensure the instances are patched and scaled properly, and you have full control over the instances.
+
+
+--> We manage the ec2 instances and ecs scjedule the containers on those instances.
+--> Long running application
+--> Predictable workload
+--> We get charged for selected instance configuration.
+
+
+ECS Anywhere : We can run our workload on our own infrastructure (On-premise, VMs), ECS act as orchestrator / workload scheduler. Actual workload runs on our ec2 instances.
+
+
+------
+
+Monitoring : 
+
+Container Insights with enhanced observability : Provides detailed health and performance metrics at task and container level in addition to aggregated metrics at cluster and service level. Enables easier drill downs for faster problem isolation and troubleshooting.
+
+Container Insights : Provides aggregated metrics at cluster and service level. You can run deep dive analysis with logs insights analytics.
+
+---
+
+To create a task on ecs cluster, we need to create a Task Definition.
+
+Task Definition contains required configuration for cotnainer i.e; image uri, cpu, memory, essential container, storage configuration.. : THis is a blueprint for our containers.. 
+
+
+Task role : Does you container required any aws service accesses i.e; access s3, dynamodb
+
+Task execution role : ecsTaskExecutionRole : essential permissions to run the container.. 
+
+Essential container : yes : if the container dies, It kills the task. 
+
+By Default ECS Provides, 20 GB Ephemeral storage. 
+When cotnainer does, storage deletes automatically. 
+
+
+----
+
+We can use this task definition and we can create a task.. 
+
+CLuster : Logical grouping of pur workload.
+Task : Its a container (Task may have multiple container (1 main , 2 support contianer - sidecar))
+Service : Combination of tasks that deliver same application, We can integrate with LB & ASG.
+
+
+----------
+
+ECS EXEC required below policy to connect to container. Make sure to add the role at "task role". 
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssmmessages:CreateControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:OpenDataChannel"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
