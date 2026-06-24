@@ -88,7 +88,26 @@ ECS EXEC required below policy to connect to container. Make sure to add the rol
 
 
 
+=================
 
+D: 24/06/2026
+
+EFS ARN : arn:aws:elasticfilesystem:ap-south-1:655700896650:file-system/fs-0206f344bb156ce13
+
+EFS Accesspoint ARN : arn:aws:elasticfilesystem:ap-south-1:655700896650:access-point/fsap-0da5a7dfa452fea4d
+
+
+---
+
+ECR API : For Authentication
+ECR DKR : Docker registry
+logs : Cloudwatch logs
+S3 gateway : For image layers
+
+--> THese 4 endpoints need to be in App subnets
+--> LB Should be in Public SUbnet
+--> Your tasks should be in app subnet
+--> Create a service and run the task
 
 
 
